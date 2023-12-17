@@ -38,31 +38,35 @@ const TrackIndividual = () => {
     setShowResult(true);
   };
 
-  // const previewContainerStyle = "w-full max-w-screen-md mx-auto mt-8 relative";
-
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       {/* The content of your component */}
       <h1 className="text-2xl font-semibold my-8">
         Scan the QR Code of Individual
       </h1>
-      <div className="w-72 h-72 mx-auto border-2 border-black rounded-lg">
-        <QrReader
-          delay={300}
-          onError={(err) => console.error(err)}
-          onScan={handleScan}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
-      </div>
-      <button
-        onClick={handleButtonClick}
-        className="bg-blue-500 text-white py-2 px-4 rounded-md mt-8"
-      >
-        Get Data
-      </button>
+      {!userData && (
+        <>
+          <div className="w-72 h-72 mx-auto border-2 border-black rounded-lg">
+            <QrReader
+              delay={300}
+              onError={(err) => console.error(err)}
+              onScan={handleScan}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </div>
+          <button
+            onClick={handleButtonClick}
+            className="bg-blue-500 text-white py-2 px-4 rounded-md mt-8"
+          >
+            Get Data
+          </button>
+        </>
+      )}
       {userData && showResult && (
         <div className="text-xl text-left bg-gray-100 p-4 rounded-md shadow-md mt-8">
-          <p className="mb-2 text-2xl font-semibold text-center">{userData.name}</p>
+          <p className="mb-2 text-2xl font-semibold text-center">
+            {userData.name}
+          </p>
           <p>Email: {userData.email}</p>
           <p>Contact: {userData.contact}</p>
           <p>College: {userData.college}</p>
@@ -74,7 +78,6 @@ const TrackIndividual = () => {
           <p>Dinner?: {userData.hadDinner ? "Yes" : "No"}</p>
           <p>Midnight Snacks?: {userData.hadMidnightSnack ? "Yes" : "No"}</p>
           <p>Breakfast?: {userData.hadBreakfast ? "Yes" : "No"}</p>
-          {/* Add styling for other fields as needed */}
         </div>
       )}
     </div>
