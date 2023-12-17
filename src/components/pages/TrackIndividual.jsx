@@ -36,7 +36,7 @@ const MyToggle = ({ label, initialValue = false, onChange }) => {
 
 const TrackIndividual = () => {
   const navigate = useNavigate();
-  const [scanResult, setScanResult] = useState(null);
+  const [scanResult, setScanResult] = useState('No Result');
   const [showResult, setShowResult] = useState(false);
   const [userData, setUserData] = useState(null);
   const [localChanges, setLocalChanges] = useState({});
@@ -84,6 +84,8 @@ const TrackIndividual = () => {
     navigate("/dashboard"); // Navigate to the "dashboard" route
   };
 
+
+
   const handleUpdateButtonClick = async () => {
     try {
       const docRef = doc(firestore, "individuals", scanResult);
@@ -112,6 +114,8 @@ const TrackIndividual = () => {
               onError={(err) => console.error(err)}
               onScan={handleScan}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              // add the facingMode="environment" prop to use the rear camera of mobile phone
+              facingMode="environment"          // Not working but
             />
           </div>
           <div className="px-4">
