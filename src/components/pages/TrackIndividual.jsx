@@ -1,12 +1,57 @@
 import React, { useState, useEffect } from "react";
 import QrReader from "react-qr-scanner";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../authentication/firebase";
+import { Switch, Dialog } from "@headlessui/react";
+
+const MyToggle = ({ label, initialValue = false, onChange }) => {
+  const [enabled, setEnabled] = useState(initialValue);
+
+  const handleToggle = () => {
+    setEnabled(!enabled);
+    onChange(!enabled);
+  };
+
+  return (
+    <div className="flex items-center space-x-4">
+      <Switch
+        checked={enabled}
+        onChange={handleToggle}
+        className={`${
+          enabled ? "bg-blue-600" : "bg-gray-200"
+        } relative inline-flex h-6 w-11 items-center rounded-full`}
+      >
+        <span className="sr-only">{label}</span>
+        <span
+          className={`${
+            enabled ? "translate-x-6" : "translate-x-1"
+          } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+        />
+      </Switch>
+      <p>{label}</p>
+    </div>
+  );
+};
+
+// ... (previous code)
 
 const TrackIndividual = () => {
   const [scanResult, setScanResult] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [localChanges, setLocalChanges] = useState({}); // New state to track local changes
+  const [isOpen, setIsOpen] = useState(true);
+  const [isUpdateButtonPressed, setIsUpdateButtonPressed] = useState(false);
+  const [isScanning, setIsScanning] = useState(true);
+
+  const handleUpdateButtonClick = () => {
+    setIsUpdateButtonPressed(true);
+  };
+
+  const handleDialogClose = () => {
+    setIsOpen(false);
+    setIsUpdateButtonPressed(false); // Reset the state when the dialog is closed
+  };
 
   useEffect(() => {
     if (scanResult && showResult) {
@@ -36,17 +81,42 @@ const TrackIndividual = () => {
 
   const handleButtonClick = () => {
     setShowResult(true);
+    setIsScanning(false);
+  };
+
+  const handleToggleChange = (field) => {
+    // Update localChanges state with the changed field
+    setLocalChanges((prevChanges) => ({
+      ...prevChanges,
+      [field]: !prevChanges[field], // Toggle the value
+    }));
+  };
+
+  const handleConfirmUpdate = async () => {
+    try {
+      // Update Firestore document with localChanges
+      const docRef = doc(firestore, "individuals", scanResult);
+      await updateDoc(docRef, localChanges);
+      // Reset localChanges state after successful update
+      setLocalChanges({});
+      setIsUpdateButtonPressed(false);
+      console.log("Document updated successfully!");
+      setIsScanning(true);
+    } catch (error) {
+      console.error("Error updating document:", error);
+    } finally {
+      setIsOpen(false); // Close the dialog
+    }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      {/* The content of your component */}
-      <h1 className="text-2xl font-semibold my-8">
+    <div className="flex flex-col items-center justify-center h-screen p-4 md:p-8 lg:p-12">
+      <h1 className="text-2xl font-semibold my-4 md:my-8 lg:my-12">
         Scan the QR Code of Individual
       </h1>
-      {!userData && (
+      {!userData && isScanning && (
         <>
-          <div className="w-72 h-72 mx-auto border-2 border-black rounded-lg">
+          <div className="w-full md:w-3/4 lg:w-1/2 mx-auto border-2 border-black rounded-lg">
             <QrReader
               delay={300}
               onError={(err) => console.error(err)}
@@ -56,28 +126,97 @@ const TrackIndividual = () => {
           </div>
           <button
             onClick={handleButtonClick}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md mt-8"
+            className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
           >
             Get Data
           </button>
         </>
       )}
       {userData && showResult && (
-        <div className="text-xl text-left bg-gray-100 p-4 rounded-md shadow-md mt-8">
-          <p className="mb-2 text-2xl font-semibold text-center">
+        <div className="text-xl text-left bg-gray-100 p-4 rounded-md shadow-md mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
+          <p className="mb-6 text-4xl font-semibold text-center">
             {userData.name}
           </p>
-          <p>Email: {userData.email}</p>
-          <p>Contact: {userData.contact}</p>
-          <p>College: {userData.college}</p>
-          <p>Medical Info: {userData.medinfo}</p>
-          <p>Team Name: {userData.teamName}</p>
-          <p>Year of Study: {userData.year}</p>
-          <p>Lunch?: {userData.hadLunch ? "Yes" : "No"}</p>
-          <p>High Tea?: {userData.hadTea ? "Yes" : "No"}</p>
-          <p>Dinner?: {userData.hadDinner ? "Yes" : "No"}</p>
-          <p>Midnight Snacks?: {userData.hadMidnightSnack ? "Yes" : "No"}</p>
-          <p>Breakfast?: {userData.hadBreakfast ? "Yes" : "No"}</p>
+          <p>
+            <span className="font-semibold">Email:</span> {userData.email}
+          </p>
+          <p>
+            <span className="font-semibold">Contact:</span> {userData.contact}
+          </p>
+          <p>
+            <span className="font-semibold">College:</span> {userData.college}
+          </p>
+          <p>
+            <span className="font-semibold">Medical Info:</span>{" "}
+            {userData.medinfo}
+          </p>
+          <p>
+            <span className="font-semibold">Team Name:</span>{" "}
+            {userData.teamName}
+          </p>
+          <p>
+            <span className="font-semibold">Year of Study:</span>{" "}
+            {userData.year}
+          </p>
+
+          <br />
+          <br />
+          <p className="text-center text-2xl">Refreshment Details</p>
+          <MyToggle
+            label="Lunch (01:30 PM to 02:30 PM)"
+            initialValue={userData.hadLunch}
+            onChange={() => handleToggleChange("hadLunch")}
+          />
+          <MyToggle
+            label="High Tea (05:00 PM to 05:30 PM)"
+            initialValue={userData.hadTea}
+            onChange={() => handleToggleChange("hadTea")}
+          />
+          <MyToggle
+            label="Dinner (09:00 PM to 10:00 PM)"
+            initialValue={userData.hadDinner}
+            onChange={() => handleToggleChange("hadDinner")}
+          />
+          <MyToggle
+            label="Midnight Snacks (01:00 AM to 01:30 AM)"
+            initialValue={userData.hadMidnightSnack}
+            onChange={() => handleToggleChange("hadMidnightSnack")}
+          />
+          <MyToggle
+            label="Breakfast (08:00 AM to 08:30 AM)"
+            initialValue={userData.hadBreakfast}
+            onChange={() => handleToggleChange("hadBreakfast")}
+          />
+          {/* Update button */}
+          <button
+            onClick={handleUpdateButtonClick}
+            className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto"
+          >
+            Update Changes
+          </button>
+
+          {/* Confirmation Dialog */}
+          {isUpdateButtonPressed && !isScanning && (
+            <Dialog
+              open={isOpen}
+              onClose={handleDialogClose}
+              className="fixed inset-0 flex items-center justify-center"
+            >
+              <div className="relative w-full max-w-md mx-auto p-4">
+                <div className="bg-white p-6 rounded-md shadow-md">
+                  <p className="text-center">Are you sure?</p>
+                  <div className="flex flex-col items-center">
+                    <button
+                      onClick={handleConfirmUpdate}
+                      className="bg-green-500 text-white py-2 px-4 rounded-md mt-4"
+                    >
+                      Confirm Update
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Dialog>
+          )}
         </div>
       )}
     </div>
