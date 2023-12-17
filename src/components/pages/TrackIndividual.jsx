@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import QrReader from "react-qr-scanner";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../authentication/firebase";
@@ -34,6 +35,7 @@ const MyToggle = ({ label, initialValue = false, onChange }) => {
 };
 
 const TrackIndividual = () => {
+  const navigate = useNavigate();
   const [scanResult, setScanResult] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -78,6 +80,10 @@ const TrackIndividual = () => {
     }));
   };
 
+  const handleBackButtonClick = () => {
+    navigate("/dashboard"); // Navigate to the "dashboard" route
+  };
+
   const handleUpdateButtonClick = async () => {
     try {
       const docRef = doc(firestore, "individuals", scanResult);
@@ -95,11 +101,11 @@ const TrackIndividual = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen p-4 md:p-8 lg:p-12">
-      <h1 className="text-2xl font-semibold my-4 md:my-8 lg:my-12">
-        Scan the QR Code of Individual
-      </h1>
       {!userData && isScanning && (
         <>
+          <h1 className="text-2xl font-semibold my-4 md:my-8 lg:my-12">
+            Scan the QR Code of Individual
+          </h1>
           <div className="w-full md:w-3/4 lg:w-1/2 mx-auto border-2 border-black rounded-lg">
             <QrReader
               delay={300}
@@ -108,16 +114,27 @@ const TrackIndividual = () => {
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           </div>
+          <div className="px-4">
           <button
             onClick={handleButtonClick}
             className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
           >
             Get Data
+          </button> &nbsp;&nbsp;
+          <button
+            onClick={handleBackButtonClick}
+            className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
+          >
+            Back
           </button>
+          </div>
         </>
       )}
       {userData && showResult && !isScanning && (
         <div className="text-xl text-left bg-gray-100 p-4 rounded-md shadow-md mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
+          <h1 className="text-2xl text-center font-semibold my-4 md:my-8 lg:my-12">
+            Participant Details
+          </h1>
           <p className="mb-6 text-4xl font-semibold text-center">
             {userData.name}
           </p>
@@ -176,7 +193,7 @@ const TrackIndividual = () => {
               onClick={handleUpdateButtonClick}
               className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto"
             >
-              Update Changes
+              Done
             </button>
           </div>
         </div>
