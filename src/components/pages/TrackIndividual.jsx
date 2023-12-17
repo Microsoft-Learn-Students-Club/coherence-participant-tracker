@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import QrReader from "react-qr-scanner";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../authentication/firebase";
-import { Switch, Dialog } from "@headlessui/react";
+import { Switch } from "@headlessui/react";
 
 const MyToggle = ({ label, initialValue = false, onChange }) => {
   const [enabled, setEnabled] = useState(initialValue);
@@ -33,25 +33,12 @@ const MyToggle = ({ label, initialValue = false, onChange }) => {
   );
 };
 
-// ... (previous code)
-
 const TrackIndividual = () => {
   const [scanResult, setScanResult] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [localChanges, setLocalChanges] = useState({}); // New state to track local changes
-  const [isOpen, setIsOpen] = useState(true);
-  const [isUpdateButtonPressed, setIsUpdateButtonPressed] = useState(false);
+  const [localChanges, setLocalChanges] = useState({});
   const [isScanning, setIsScanning] = useState(true);
-
-  const handleUpdateButtonClick = () => {
-    setIsUpdateButtonPressed(true);
-  };
-
-  const handleDialogClose = () => {
-    setIsOpen(false);
-    setIsUpdateButtonPressed(false); // Reset the state when the dialog is closed
-  };
 
   useEffect(() => {
     if (scanResult && showResult) {
@@ -85,27 +72,24 @@ const TrackIndividual = () => {
   };
 
   const handleToggleChange = (field) => {
-    // Update localChanges state with the changed field
     setLocalChanges((prevChanges) => ({
       ...prevChanges,
-      [field]: !prevChanges[field], // Toggle the value
+      [field]: !prevChanges[field],
     }));
   };
 
-  const handleConfirmUpdate = async () => {
+  const handleUpdateButtonClick = async () => {
     try {
-      // Update Firestore document with localChanges
       const docRef = doc(firestore, "individuals", scanResult);
       await updateDoc(docRef, localChanges);
-      // Reset localChanges state after successful update
       setLocalChanges({});
-      setIsUpdateButtonPressed(false);
       console.log("Document updated successfully!");
       setIsScanning(true);
+      setShowResult(false);
+      setUserData(null);
+      setScanResult(null);
     } catch (error) {
       console.error("Error updating document:", error);
-    } finally {
-      setIsOpen(false); // Close the dialog
     }
   };
 
@@ -132,7 +116,7 @@ const TrackIndividual = () => {
           </button>
         </>
       )}
-      {userData && showResult && (
+      {userData && showResult && !isScanning && (
         <div className="text-xl text-left bg-gray-100 p-4 rounded-md shadow-md mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
           <p className="mb-6 text-4xl font-semibold text-center">
             {userData.name}
@@ -187,36 +171,14 @@ const TrackIndividual = () => {
             initialValue={userData.hadBreakfast}
             onChange={() => handleToggleChange("hadBreakfast")}
           />
-          {/* Update button */}
-          <button
-            onClick={handleUpdateButtonClick}
-            className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto"
-          >
-            Update Changes
-          </button>
-
-          {/* Confirmation Dialog */}
-          {isUpdateButtonPressed && !isScanning && (
-            <Dialog
-              open={isOpen}
-              onClose={handleDialogClose}
-              className="fixed inset-0 flex items-center justify-center"
+          <div className="flex flex-col items-center mt-4">
+            <button
+              onClick={handleUpdateButtonClick}
+              className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto"
             >
-              <div className="relative w-full max-w-md mx-auto p-4">
-                <div className="bg-white p-6 rounded-md shadow-md">
-                  <p className="text-center">Are you sure?</p>
-                  <div className="flex flex-col items-center">
-                    <button
-                      onClick={handleConfirmUpdate}
-                      className="bg-green-500 text-white py-2 px-4 rounded-md mt-4"
-                    >
-                      Confirm Update
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </Dialog>
-          )}
+              Update Changes
+            </button>
+          </div>
         </div>
       )}
     </div>
