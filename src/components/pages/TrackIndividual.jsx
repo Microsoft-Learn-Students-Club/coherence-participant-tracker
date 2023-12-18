@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import QrReader from "react-qr-scanner";
+import { QrReader } from "react-qr-reader";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../authentication/firebase";
 import { Switch } from "@headlessui/react";
@@ -36,7 +36,7 @@ const MyToggle = ({ label, initialValue = false, onChange }) => {
 
 const TrackIndividual = () => {
   const navigate = useNavigate();
-  const [scanResult, setScanResult] = useState('No Result');
+  const [scanResult, setScanResult] = useState("No Result");
   const [showResult, setShowResult] = useState(false);
   const [userData, setUserData] = useState(null);
   const [localChanges, setLocalChanges] = useState({});
@@ -62,11 +62,11 @@ const TrackIndividual = () => {
     }
   }, [scanResult, showResult]);
 
-  const handleScan = (result) => {
-    if (result) {
-      setScanResult(result.text);
-    }
-  };
+  // const handleScan = (result) => {
+  //   if (result) {
+  //     setScanResult(result.text);
+  //   }
+  // };
 
   const handleButtonClick = () => {
     setShowResult(true);
@@ -83,8 +83,6 @@ const TrackIndividual = () => {
   const handleBackButtonClick = () => {
     navigate("/dashboard"); // Navigate to the "dashboard" route
   };
-
-
 
   const handleUpdateButtonClick = async () => {
     try {
@@ -111,26 +109,34 @@ const TrackIndividual = () => {
           <div className="w-full md:w-3/4 lg:w-1/2 mx-auto border-2 border-black rounded-lg">
             <QrReader
               delay={300}
-              onError={(err) => console.error(err)}
-              onScan={handleScan}
+              onResult={(result) => {
+                if (result) {
+                  setScanResult(result.text);
+                }
+              }}
+              onError={(error) => {
+                console.info(error);
+              }}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              // add the facingMode="environment" prop to use the rear camera of mobile phone
-              facingMode="environment"          // Not working but
+              constraints={{
+                    facingMode: "environment"
+                }}
             />
           </div>
           <div className="px-4">
-          <button
-            onClick={handleButtonClick}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
-          >
-            Get Data
-          </button> &nbsp;&nbsp;
-          <button
-            onClick={handleBackButtonClick}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
-          >
-            Back
-          </button>
+            <button
+              onClick={handleButtonClick}
+              className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
+            >
+              Get Data
+            </button>{" "}
+            &nbsp;&nbsp;
+            <button
+              onClick={handleBackButtonClick}
+              className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
+            >
+              Back
+            </button>
           </div>
         </>
       )}
