@@ -62,11 +62,6 @@ const TrackIndividual = () => {
     }
   }, [scanResult, showResult]);
 
-  // const handleScan = (result) => {
-  //   if (result) {
-  //     setScanResult(result.text);
-  //   }
-  // };
 
   const handleButtonClick = () => {
     setShowResult(true);
@@ -100,13 +95,13 @@ const TrackIndividual = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen p-4 md:p-8 lg:p-12">
+    <div className="flex flex-col items-center justify-center h-screen p-4 md:p-8 lg:p-12 bg-gray-950">
       {!userData && isScanning && (
         <>
           <h1 className="text-2xl font-semibold my-4 md:my-8 lg:my-12">
             Scan the QR Code of Individual
           </h1>
-          <div className="w-full md:w-3/4 lg:w-1/2 mx-auto border-2 border-black rounded-lg">
+          <div className="w-full md:w-3/4 lg:w-1/2 mx-auto rounded-lg">
             <QrReader
               delay={300}
               onResult={(result) => {
@@ -141,8 +136,8 @@ const TrackIndividual = () => {
         </>
       )}
       {userData && showResult && !isScanning && (
-        <div className="text-xl text-left bg-gray-100 p-4 rounded-md shadow-md mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
-          <h1 className="text-2xl text-center font-semibold my-4 md:my-8 lg:my-12">
+        <div className="text-xl text-left text-white bg-transparent p-4 rounded-md border-2 border-white mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
+          <h1 className="text-2xl text-center text-white font-semibold my-4 md:my-8 lg:my-12">
             Participant Details
           </h1>
           <p className="mb-6 text-4xl font-semibold text-center">
@@ -172,7 +167,7 @@ const TrackIndividual = () => {
 
           <br />
           <br />
-          <p className="text-center text-2xl">Refreshment Details</p>
+          <p className="text-center text-white text-2xl">Refreshment Details</p>
           <MyToggle
             label="Lunch (01:30 PM to 02:30 PM)"
             initialValue={userData.hadLunch}

@@ -95,7 +95,7 @@ const TrackTeam = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen p-4 md:p-8 lg:p-12">
+    <div className="flex flex-col items-center justify-center h-screen p-4 md:p-8 lg:p-12 bg-gray-950">
       {!userData && isScanning && (
         <>
           <h1 className="text-2xl font-semibold my-4 md:my-8 lg:my-12">
@@ -136,46 +136,47 @@ const TrackTeam = () => {
         </>
       )}
       {userData && showResult && !isScanning && (
-        <div className="text-xl text-left bg-gray-100 p-4 rounded-md shadow-md mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
-          <h1 className="text-2xl text-center font-semibold my-4 md:my-8 lg:my-12">
+        <div className="text-xl text-left bg-transparent p-4 rounded-md border-2 border-white mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
+          <h1 className="text-2xl text-center text-white font-semibold my-4 md:my-8 lg:my-12">
             Team Details
           </h1>
-          <p className="mb-6 text-4xl font-bold text-center">
+          <p className="mb-6 text-4xl text-white font-bold text-center">
             {userData.teamName}
           </p>
-          <p className="text-2xl font-semibold text-center">
+          <p className="text-2xl font-semibold text-white text-center">
             <span className="font-semibold">Team Leader:</span>{" "}
             {userData.teamLead}
           </p>
-          <p>
-            <span className="font-semibold">Member 1:</span> {userData.member1}
+          <p className="text-white">
+            <span className="font-semibold text-white">Member 1:</span> {userData.member1}
           </p>
           {userData.member2 && userData.member2 !== "NA" && (
-            <p>
-              <span className="font-semibold">Member 2:</span>{" "}
+            <p className="text-white">
+              <span className="font-semibold text-white">Member 2:</span>{" "}
               {userData.member2}
             </p>
           )}
           {userData.member3 && userData.member3 !== "NA" && (
-            <p>
-              <span className="font-semibold">Member 3:</span>{" "}
+            <p className="text-white">
+              <span className="font-semibold text-white">Member 3:</span>{" "}
               {userData.member3}
             </p>
           )}
           {userData.member4 && userData.member4 !== "NA" && (
-            <p>
-              <span className="font-semibold">Member 4:</span>{" "}
+            <p className="text-white">
+              <span className="font-semibold text-white">Member 4:</span>{" "}
               {userData.member4}
             </p>
           )}
 
-          <p>
+          <p className="text-white">
             <span className="font-semibold">College:</span>{" "}
             {userData.leadCollege}
           </p>
           <br />
           <br />
-          <p className="text-center text-2xl">Evaluation Details</p>
+          <p className="text-center text-2xl text-white">Evaluation Details</p>
+          <div className="text-white mt-4">
           <MyToggle
             label="Evaluation Round - 1"
             initialValue={userData.isFirstEvalDone}
@@ -186,6 +187,7 @@ const TrackTeam = () => {
             initialValue={userData.isSecondEvalDone}
             onChange={() => handleToggleChange("isSecondEvalDone")}
           />
+            </div>
           <div className="flex flex-col items-center mt-4">
             <button
               onClick={handleUpdateButtonClick}
