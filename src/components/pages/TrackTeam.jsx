@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import QrReader from "react-qr-scanner";
+import { QrReader } from "react-qr-reader";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../authentication/firebase";
 import { Switch } from "@headlessui/react";
@@ -62,11 +62,6 @@ const TrackTeam = () => {
     }
   }, [scanResult, showResult]);
 
-  const handleScan = (result) => {
-    if (result) {
-      setScanResult(result.text);
-    }
-  };
 
   const handleButtonClick = () => {
     setShowResult(true);
@@ -109,9 +104,18 @@ const TrackTeam = () => {
           <div className="w-full md:w-3/4 lg:w-1/2 mx-auto border-2 border-black rounded-lg">
             <QrReader
               delay={300}
-              onError={(err) => console.error(err)}
-              onScan={handleScan}
+              onResult={(result) => {
+                if (result) {
+                  setScanResult(result.text);
+                }
+              }}
+              onError={(error) => {
+                console.info(error);
+              }}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              constraints={{
+                facingMode: "environment",
+              }}
             />
           </div>
           <div className="px-4">
