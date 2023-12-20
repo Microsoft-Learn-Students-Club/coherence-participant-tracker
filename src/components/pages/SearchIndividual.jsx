@@ -104,70 +104,79 @@ const SearchIndividual = () => {
       </div>
 
       {userData && (
-        <div className="text-xl font-light md:text-lg text-left text-white bg-transparent p-4 rounded-md border-2 border-white mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
+        <>
           <h1 className="text-xl font-bold mb-3 text-white">
             Participant Information:
           </h1>
-          <p className="text-4xl font-semibold text-center">{userData.name}</p>
-          {userData.isLead && userData.isLead !== "false" && (
-            <p className="text-xl font-light text-center italic">
-              (Leader of team "{userData.teamName}")
+          <div className="text-xl font-light md:text-lg text-left text-white bg-transparent p-4 rounded-md border-2 border-white mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
+            <p className="text-4xl font-semibold text-center">
+              {userData.name}
             </p>
-          )}
-          <br />
-          <p
-            onClick={() => (window.location.href = `mailto:${userData.email}`)}
-          >
-            <span className="font-semibold mt-8">Email:</span> {userData.email}
-          </p>
-
-          <p onClick={() => (window.location.href = `tel:${userData.contact}`)}>
-            <span className="font-semibold">Contact:</span> {userData.contact}
-          </p>
-          <p>
-            <span className="font-semibold">College:</span> {userData.college}
-          </p>
-          <p>
-            <span className="font-semibold">Medical Info:</span>{" "}
-            {userData.medinfo}
-          </p>
-          <p>
-            <span className="font-semibold">Team Name:</span>{" "}
-            {userData.teamName}
-          </p>
-          <p>
-            <span className="font-semibold">Year of Study:</span>{" "}
-            {userData.year}
-          </p>
-          <br />
-          <p className="text-center font-semibold text-white text-2xl mb-2">
-            Refreshment Remarks
-          </p>
-          {userData.hadLunch && userData.hadLunch !== "false" && (
-            <p className="text-white">Lunch has been provided.</p>
-          )}
-          {userData.hadTea && userData.hadTea !== "false" && (
-            <p className="text-white">High Tea has been provided.</p>
-          )}
-          {userData.hadDinner && userData.hadDinner !== "false" && (
-            <p className="text-white">Dinner has been provided.</p>
-          )}
-          {userData.hadMidnightSnack &&
-            userData.hadMidnightSnack !== "false" && (
-              <p className="text-white">Midnight Snacks has been provided.</p>
+            {userData.isLead && userData.isLead !== "false" && (
+              <p className="text-xl font-light text-center italic">
+                (Leader of team "{userData.teamName}")
+              </p>
             )}
-          {userData.hadBreakfast && userData.hadBreakfast !== "false" && (
-            <p className="text-white">Breakfast has been provided.</p>
-          )}
-          <div className="flex flex-col items-center mt-4">
-            <button
-              onClick={handleBackButtonClick}
-              className="bg-purple-500 text-white py-2 px-4 rounded-md mt-4 mx-auto w-full"
+            <br />
+            <p
+              onClick={() =>
+                (window.location.href = `mailto:${userData.email}`)
+              }
             >
-              Back
-            </button>
+              <span className="font-semibold mt-8">Email:</span>{" "}
+              {userData.email}
+            </p>
+
+            <p
+              onClick={() => (window.location.href = `tel:${userData.contact}`)}
+            >
+              <span className="font-semibold">Contact:</span> {userData.contact}
+            </p>
+            <p>
+              <span className="font-semibold">College:</span> {userData.college}
+            </p>
+            <p>
+              <span className="font-semibold">Medical Info:</span>{" "}
+              {userData.medinfo}
+            </p>
+            <p>
+              <span className="font-semibold">Team Name:</span>{" "}
+              {userData.teamName}
+            </p>
+            <p>
+              <span className="font-semibold">Year of Study:</span>{" "}
+              {userData.year}
+            </p>
+            <br />
+            <p className="text-center font-semibold text-white text-2xl mb-2">
+              Refreshment Remarks
+            </p>
+            {userData.hadLunch && userData.hadLunch !== "false" && (
+              <p className="text-white">Lunch has been provided.</p>
+            )}
+            {userData.hadTea && userData.hadTea !== "false" && (
+              <p className="text-white">High Tea has been provided.</p>
+            )}
+            {userData.hadDinner && userData.hadDinner !== "false" && (
+              <p className="text-white">Dinner has been provided.</p>
+            )}
+            {userData.hadMidnightSnack &&
+              userData.hadMidnightSnack !== "false" && (
+                <p className="text-white">Midnight Snacks has been provided.</p>
+              )}
+            {userData.hadBreakfast && userData.hadBreakfast !== "false" && (
+              <p className="text-white">Breakfast has been provided.</p>
+            )}
+            <div className="flex flex-col items-center mt-4">
+              <button
+                onClick={handleBackButtonClick}
+                className="bg-purple-500 text-white py-2 px-4 rounded-md mt-4 mx-auto w-full"
+              >
+                Back
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
       <ToastContainer
         position="bottom-center"

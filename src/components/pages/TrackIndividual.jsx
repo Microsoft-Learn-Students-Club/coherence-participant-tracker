@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { QrReader } from "react-qr-reader";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../authentication/firebase";
 import { Switch } from "@headlessui/react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { MdOutlineVerified } from "react-icons/md";
 
 const MyToggle = ({ label, initialValue = false, onChange }) => {
   const [enabled, setEnabled] = useState(initialValue);
@@ -83,7 +84,15 @@ const TrackIndividual = () => {
   const handleUpdateButtonClick = async () => {
     try {
       const docRef = doc(firestore, "individuals", scanResult);
-      await updateDoc(docRef, localChanges);
+
+      // Include isCheckedIn and checkInTime in local changes
+      const updatedLocalChanges = {
+        ...localChanges,
+        isCheckedIn: true,
+        checkInTime: serverTimestamp(),
+      };
+
+      await updateDoc(docRef, updatedLocalChanges);
       setLocalChanges({});
       // console.log("Document updated successfully!");
       toast.success("Details updated!", {
@@ -157,20 +166,32 @@ const TrackIndividual = () => {
         </>
       )}
       {userData && showResult && !isScanning && (
-        <div className="text-xl md:text-lg text-left text-white bg-transparent p-4 rounded-md border-2 border-white mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
-          <h1 className="text-4xl font-bold mb-3 text-center text-white">
+        <div className="text-xl md:text-lg text-left font-light text-white bg-transparent p-4 rounded-md border-2 border-white mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
+          <h1 className="text-4xl font-extrabold mb-3 text-center text-white">
             {userData.pid}
           </h1>
-          <p className="text-4xl font-semibold text-center">{userData.name}</p>
+          {userData.isCheckedIn ? (
+            <p className="text-4xl font-semibold text-center italic flex items-center justify-center">
+              {userData.name}{" "}
+              <MdOutlineVerified className="ml-2 text-green-500" />
+            </p>
+          ) : (
+            <p className="text-4xl font-semibold text-center italic flex items-center justify-center">
+              {userData.name}{" "}
+              <MdOutlineVerified className="ml-2 text-gray-500" />
+            </p>
+          )}
+
           {userData.isLead && userData.isLead !== "false" && (
             <p className="text-xl font-light text-center italic">
               (Leader of team "{userData.teamName}")
             </p>
           )}
+          <br />
           <p
             onClick={() => (window.location.href = `mailto:${userData.email}`)}
           >
-            <span className="font-semibold mt-6">Email:</span> {userData.email}
+            <span className="font-semibold">Email:</span> {userData.email}
           </p>
 
           <p onClick={() => (window.location.href = `tel:${userData.contact}`)}>
@@ -192,42 +213,76 @@ const TrackIndividual = () => {
             {userData.year}
           </p>
 
-          <br />
-          <br />
-          <p className="text-center text-white text-2xl">Refreshment Details</p>
-          <MyToggle
-            label="Lunch"
-            initialValue={userData.hadLunch}
-            onChange={() => handleToggleChange("hadLunch")}
-          />
-          <MyToggle
-            label="High Tea"
-            initialValue={userData.hadTea}
-            onChange={() => handleToggleChange("hadTea")}
-          />
-          <MyToggle
-            label="Dinner"
-            initialValue={userData.hadDinner}
-            onChange={() => handleToggleChange("hadDinner")}
-          />
-          <MyToggle
-            label="Midnight Snacks"
-            initialValue={userData.hadMidnightSnack}
-            onChange={() => handleToggleChange("hadMidnightSnack")}
-          />
-          <MyToggle
-            label="Breakfast"
-            initialValue={userData.hadBreakfast}
-            onChange={() => handleToggleChange("hadBreakfast")}
-          />
-          <div className="flex flex-col items-center mt-4">
-            <button
-              onClick={handleUpdateButtonClick}
-              className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto w-full"
-            >
-              Done
-            </button>
-          </div>
+          {/* Check-in logic */}
+          {userData.isCheckedIn ? (
+            <>
+              <p>
+                <span className="font-semibold">Assigned Lab:</span>{" "}
+                <span className="border-2 border-white rounded-md p-1">
+                  {userData.assignedPlace}
+                </span>
+              </p>
+              <p>
+                <span className="font-semibold">Check-In Time:</span>{" "}
+                {userData.checkInTime &&
+                  `${new Date(
+                    userData.checkInTime.toDate()
+                  ).toLocaleDateString()} ${new Date(
+                    userData.checkInTime.toDate()
+                  ).toLocaleTimeString()}`}
+              </p>
+
+              <br />
+              <br />
+              <p className="text-center text-white text-2xl font-semibold">
+                Refreshment Details
+              </p>
+              <MyToggle
+                label="Lunch"
+                initialValue={userData.hadLunch}
+                onChange={() => handleToggleChange("hadLunch")}
+              />
+              <MyToggle
+                label="High Tea"
+                initialValue={userData.hadTea}
+                onChange={() => handleToggleChange("hadTea")}
+              />
+              <MyToggle
+                label="Dinner"
+                initialValue={userData.hadDinner}
+                onChange={() => handleToggleChange("hadDinner")}
+              />
+              <MyToggle
+                label="Midnight Snacks"
+                initialValue={userData.hadMidnightSnack}
+                onChange={() => handleToggleChange("hadMidnightSnack")}
+              />
+              <MyToggle
+                label="Breakfast"
+                initialValue={userData.hadBreakfast}
+                onChange={() => handleToggleChange("hadBreakfast")}
+              />
+              <div className="flex flex-col items-center mt-4">
+                <button
+                  onClick={handleUpdateButtonClick}
+                  className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto w-full"
+                >
+                  Done
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col items-center mt-4">
+                <button
+                  onClick={handleUpdateButtonClick}
+                  className="bg-green-500 text-white font-semibold py-2 px-4 rounded-md mt-4 mx-auto w-full"
+                >
+                  Check In
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
       <ToastContainer
