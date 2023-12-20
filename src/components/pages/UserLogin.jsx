@@ -3,6 +3,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../authentication/firebase";
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/Coherence_Logo.png";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const nav = useNavigate();
@@ -20,7 +22,17 @@ const Login = () => {
         password
       );
       const user = userCredential.user;
-      console.log("Signed in successfully", user);
+      console.log("Logged in successfully", user);
+      toast.success("Logged in ✅", {
+        position: "bottom-center",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
 
       // Redirect to the dashboard
       nav("/dashboard");
@@ -32,7 +44,7 @@ const Login = () => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-950">
+    <div className="min-h-screen flex items-center justify-center bg-gray-950">
       <section className="bg-transparent rounded-md p-8 max-w-md w-full text-center">
         <div className="flex flex-col items-center justify-center">
           <img
@@ -86,7 +98,19 @@ const Login = () => {
           </form>
         </div>
       </section>
-    </main>
+      <ToastContainer
+        position="bottom-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+    </div>
   );
 };
 
