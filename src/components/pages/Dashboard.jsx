@@ -67,7 +67,7 @@ const Dashboard = () => {
             className="flex-1 bg-transparent border-2 text-white text-2xl font-semibold py-3 rounded-md"
             onClick={handleTrackIndividuals}
           >
-            Track Individuals
+            Track Participant
           </button>
 
           {/* Track Team Button */}
