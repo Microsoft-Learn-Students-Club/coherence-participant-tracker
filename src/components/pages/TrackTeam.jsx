@@ -4,6 +4,8 @@ import { QrReader } from "react-qr-reader";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../authentication/firebase";
 import { Switch } from "@headlessui/react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const MyToggle = ({ label, initialValue = false, onChange }) => {
   const [enabled, setEnabled] = useState(initialValue);
@@ -62,7 +64,6 @@ const TrackTeam = () => {
     }
   }, [scanResult, showResult]);
 
-
   const handleButtonClick = () => {
     setShowResult(true);
     setIsScanning(false);
@@ -84,13 +85,33 @@ const TrackTeam = () => {
       const docRef = doc(firestore, "teams", scanResult);
       await updateDoc(docRef, localChanges);
       setLocalChanges({});
-      console.log("Document updated successfully!");
+      // console.log("Document updated successfully!");
+      toast.success("Details updated!", {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       setIsScanning(true);
       setShowResult(false);
       setUserData(null);
       setScanResult(null);
     } catch (error) {
-      console.error("Error updating document:", error);
+      // console.error("Error updating document:", error);
+      toast.error("Error updating document", {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     }
   };
 
@@ -98,7 +119,7 @@ const TrackTeam = () => {
     <div className="flex flex-col items-center justify-center h-screen p-4 md:p-8 lg:p-12 bg-gray-950">
       {!userData && isScanning && (
         <>
-          <h1 className="text-2xl font-semibold my-4 md:my-8 lg:my-12">
+          <h1 className="text-2xl text-white font-semibold my-4 md:my-8 lg:my-12">
             Scan the QR Code of Team
           </h1>
           <div className="w-full md:w-3/4 lg:w-1/2 mx-auto border-2 border-black rounded-lg">
@@ -121,14 +142,14 @@ const TrackTeam = () => {
           <div className="px-4">
             <button
               onClick={handleButtonClick}
-              className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
+              className="bg-purple-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
             >
               Get Data
             </button>{" "}
             &nbsp;&nbsp;
             <button
               onClick={handleBackButtonClick}
-              className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
+              className="bg-purple-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
             >
               Back
             </button>
@@ -147,24 +168,24 @@ const TrackTeam = () => {
             <span className="font-semibold">Team Leader:</span>{" "}
             {userData.teamLead}
           </p>
-          <p className="text-white">
-            <span className="font-semibold text-white">Member 1:</span> {userData.member1}
-          </p>
-          {userData.member2 && userData.member2 !== "NA" && (
+          <p className="text-white font-semibold">Members: </p>
+          {userData.member1 !== userData.teamLead && (
             <p className="text-white">
-              <span className="font-semibold text-white">Member 2:</span>{" "}
+            {userData.member1}
+          </p>
+          )}
+          {userData.member2 && userData.member2 !== "NA" && userData.member2 !== userData.teamLead &&(
+            <p className="text-white">
               {userData.member2}
             </p>
           )}
-          {userData.member3 && userData.member3 !== "NA" && (
+          {userData.member3 && userData.member3 !== "NA" && userData.member3 !== userData.teamLead &&(
             <p className="text-white">
-              <span className="font-semibold text-white">Member 3:</span>{" "}
               {userData.member3}
             </p>
           )}
-          {userData.member4 && userData.member4 !== "NA" && (
+          {userData.member4 && userData.member4 !== "NA" && userData.member4 !== userData.teamLead &&(
             <p className="text-white">
-              <span className="font-semibold text-white">Member 4:</span>{" "}
               {userData.member4}
             </p>
           )}
@@ -173,31 +194,47 @@ const TrackTeam = () => {
             <span className="font-semibold">College:</span>{" "}
             {userData.leadCollege}
           </p>
+          <p className="text-white">
+            <span className="font-semibold">PS Domain:</span>{" "}
+            {userData.ps}
+          </p>
           <br />
           <br />
           <p className="text-center text-2xl text-white">Evaluation Details</p>
           <div className="text-white mt-4">
-          <MyToggle
-            label="Evaluation Round - 1"
-            initialValue={userData.isFirstEvalDone}
-            onChange={() => handleToggleChange("isFirstEvalDone")}
-          />
-          <MyToggle
-            label="Evaluation Round - 2"
-            initialValue={userData.isSecondEvalDone}
-            onChange={() => handleToggleChange("isSecondEvalDone")}
-          />
-            </div>
+            <MyToggle
+              label="Evaluation Round - 1"
+              initialValue={userData.isFirstEvalDone}
+              onChange={() => handleToggleChange("isFirstEvalDone")}
+            />
+            <MyToggle
+              label="Evaluation Round - 2"
+              initialValue={userData.isSecondEvalDone}
+              onChange={() => handleToggleChange("isSecondEvalDone")}
+            />
+          </div>
           <div className="flex flex-col items-center mt-4">
             <button
               onClick={handleUpdateButtonClick}
-              className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto"
+              className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto w-full"
             >
               Done
             </button>
           </div>
         </div>
       )}
+      <ToastContainer
+        position="bottom-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   );
 };

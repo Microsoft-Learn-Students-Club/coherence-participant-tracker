@@ -4,6 +4,8 @@ import { QrReader } from "react-qr-reader";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../authentication/firebase";
 import { Switch } from "@headlessui/react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const MyToggle = ({ label, initialValue = false, onChange }) => {
   const [enabled, setEnabled] = useState(initialValue);
@@ -14,13 +16,13 @@ const MyToggle = ({ label, initialValue = false, onChange }) => {
   };
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center space-x-4 mb-2">
       <Switch
         checked={enabled}
         onChange={handleToggle}
         className={`${
-          enabled ? "bg-blue-600" : "bg-gray-200"
-        } relative inline-flex h-6 w-11 items-center rounded-full`}
+          enabled ? "bg-purple-600" : "bg-gray-200"
+        } relative inline-flex h-6 w-11 mr-2 items-center rounded-full`}
       >
         <span className="sr-only">{label}</span>
         <span
@@ -62,7 +64,6 @@ const TrackIndividual = () => {
     }
   }, [scanResult, showResult]);
 
-
   const handleButtonClick = () => {
     setShowResult(true);
     setIsScanning(false);
@@ -84,13 +85,33 @@ const TrackIndividual = () => {
       const docRef = doc(firestore, "individuals", scanResult);
       await updateDoc(docRef, localChanges);
       setLocalChanges({});
-      console.log("Document updated successfully!");
+      // console.log("Document updated successfully!");
+      toast.success("Details updated!", {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       setIsScanning(true);
       setShowResult(false);
       setUserData(null);
       setScanResult(null);
     } catch (error) {
-      console.error("Error updating document:", error);
+      // console.error("Error updating document:", error);
+      toast.error("Error updating document", {
+        position: "bottom-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     }
   };
 
@@ -98,8 +119,8 @@ const TrackIndividual = () => {
     <div className="flex flex-col items-center justify-center h-screen p-4 md:p-8 lg:p-12 bg-gray-950">
       {!userData && isScanning && (
         <>
-          <h1 className="text-2xl font-semibold my-4 md:my-8 lg:my-12">
-            Scan the QR Code of Individual
+          <h1 className="text-2xl text-white font-semibold my-4 md:my-8 lg:my-12">
+            Scan the QR Code of Participant
           </h1>
           <div className="w-full md:w-3/4 lg:w-1/2 mx-auto rounded-lg">
             <QrReader
@@ -114,21 +135,21 @@ const TrackIndividual = () => {
               }}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
               constraints={{
-                    facingMode: "environment"
-                }}
+                facingMode: "environment",
+              }}
             />
           </div>
           <div className="px-4">
             <button
               onClick={handleButtonClick}
-              className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
+              className="bg-purple-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
             >
               Get Data
             </button>{" "}
             &nbsp;&nbsp;
             <button
               onClick={handleBackButtonClick}
-              className="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
+              className="bg-purple-500 text-white py-2 px-4 rounded-md mt-4 md:mt-8 lg:mt-12"
             >
               Back
             </button>
@@ -136,17 +157,23 @@ const TrackIndividual = () => {
         </>
       )}
       {userData && showResult && !isScanning && (
-        <div className="text-xl text-left text-white bg-transparent p-4 rounded-md border-2 border-white mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
-          <h1 className="text-2xl text-center text-white font-semibold my-4 md:my-8 lg:my-12">
-            Participant Details
+        <div className="text-xl md:text-lg text-left text-white bg-transparent p-4 rounded-md border-2 border-white mt-4 md:mt-8 lg:mt-12 w-full md:w-3/4 lg:w-1/2">
+          <h1 className="text-4xl font-bold mb-3 text-center text-white">
+            {userData.pid}
           </h1>
-          <p className="mb-6 text-4xl font-semibold text-center">
-            {userData.name}
+          <p className="text-4xl font-semibold text-center">{userData.name}</p>
+          {userData.isLead && userData.isLead !== "false" && (
+            <p className="text-xl font-light text-center italic">
+              (Leader of team "{userData.teamName}")
+            </p>
+          )}
+          <p
+            onClick={() => (window.location.href = `mailto:${userData.email}`)}
+          >
+            <span className="font-semibold mt-6">Email:</span> {userData.email}
           </p>
-          <p>
-            <span className="font-semibold">Email:</span> {userData.email}
-          </p>
-          <p>
+
+          <p onClick={() => (window.location.href = `tel:${userData.contact}`)}>
             <span className="font-semibold">Contact:</span> {userData.contact}
           </p>
           <p>
@@ -169,40 +196,52 @@ const TrackIndividual = () => {
           <br />
           <p className="text-center text-white text-2xl">Refreshment Details</p>
           <MyToggle
-            label="Lunch (01:30 PM to 02:30 PM)"
+            label="Lunch"
             initialValue={userData.hadLunch}
             onChange={() => handleToggleChange("hadLunch")}
           />
           <MyToggle
-            label="High Tea (05:00 PM to 05:30 PM)"
+            label="High Tea"
             initialValue={userData.hadTea}
             onChange={() => handleToggleChange("hadTea")}
           />
           <MyToggle
-            label="Dinner (09:00 PM to 10:00 PM)"
+            label="Dinner"
             initialValue={userData.hadDinner}
             onChange={() => handleToggleChange("hadDinner")}
           />
           <MyToggle
-            label="Midnight Snacks (01:00 AM to 01:30 AM)"
+            label="Midnight Snacks"
             initialValue={userData.hadMidnightSnack}
             onChange={() => handleToggleChange("hadMidnightSnack")}
           />
           <MyToggle
-            label="Breakfast (08:00 AM to 08:30 AM)"
+            label="Breakfast"
             initialValue={userData.hadBreakfast}
             onChange={() => handleToggleChange("hadBreakfast")}
           />
           <div className="flex flex-col items-center mt-4">
             <button
               onClick={handleUpdateButtonClick}
-              className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto"
+              className="bg-green-500 text-white py-2 px-4 rounded-md mt-4 mx-auto w-full"
             >
               Done
             </button>
           </div>
         </div>
       )}
+      <ToastContainer
+        position="bottom-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   );
 };
