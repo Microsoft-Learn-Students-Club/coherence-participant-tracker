@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import QrReader from "react-qr-scanner";
+import QrReader from "react-qr-reader";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../authentication/firebase";
 import { Switch } from "@headlessui/react";
@@ -17,15 +17,13 @@ const MyToggle = ({ label, initialValue = false, onChange }) => {
       <Switch
         checked={enabled}
         onChange={handleToggle}
-        className={`${
-          enabled ? "bg-blue-600" : "bg-gray-200"
-        } relative inline-flex h-6 w-11 items-center rounded-full`}
+        className={`${enabled ? "bg-blue-600" : "bg-gray-200"
+          } relative inline-flex h-6 w-11 items-center rounded-full`}
       >
         <span className="sr-only">{label}</span>
         <span
-          className={`${
-            enabled ? "translate-x-6" : "translate-x-1"
-          } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+          className={`${enabled ? "translate-x-6" : "translate-x-1"
+            } inline-block h-4 w-4 transform rounded-full bg-white transition`}
         />
       </Switch>
       <p>{label}</p>
